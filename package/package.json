@@ -1,0 +1,42 @@
+{
+	"name": "forge-exec-ipc-server",
+	"version": "0.0.1",
+	"description": "A package that let a script communicate back with forge-exec",
+	"keywords": [
+		"forge",
+		"solidity",
+		"ethereum",
+		"foundry",
+		"javascript"
+	],
+	"author": "Ronan Sandford (@wighawag)",
+	"type": "module",
+	"types": "dist/esm/index.d.ts",
+	"main": "dist/cjs/index.cjs",
+	"module": "dist/esm/index.js",
+	"exports": {
+		".": {
+			"import": "./dist/esm/index.js",
+			"require": "./dist/cjs/index.cjs"
+		}
+	},
+	"bin": {
+		"forge-exec": "dist/esm/executor.js"
+	},
+	"devDependencies": {
+		"@types/node": "^18.15.7",
+		"abitype": "^0.7.1",
+		"tsup": "^6.7.0",
+		"typescript": "^4.9.5"
+	},
+	"dependencies": {
+		"@achrinza/node-ipc": "^10.1.7",
+		"named-logs": "^0.2.2",
+		"viem": "^0.1.22"
+	},
+	"scripts": {
+		"build:esm": "tsup-node --entry src/index.ts --entry src/executor.ts --dts --out-dir dist/esm --format esm",
+		"build:cjs": "tsup-node --entry src/index.ts --entry src/executor.ts --dts --out-dir dist/cjs --format cjs",
+		"build": "pnpm run build:esm && pnpm run build:cjs"
+	}
+}

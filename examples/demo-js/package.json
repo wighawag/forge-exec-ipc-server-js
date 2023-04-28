@@ -1,0 +1,12 @@
+{
+  "name": "forge-exec-js-demo",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "forge-exec-ipc-server": "workspace:*",
+    "tsx": "^3.12.6"
+  },
+  "scripts": {
+    "test": "forge test"
+  }
+}
