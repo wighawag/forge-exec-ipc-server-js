@@ -5,8 +5,8 @@ importers:
   examples/demo-js:
     devDependencies:
       forge-exec:
-        specifier: ^0.0.2
-        version: 0.0.2
+        specifier: ^0.0.3
+        version: 0.0.3
       forge-exec-ipc-server:
         specifier: workspace:*
         version: link:../../package
@@ -563,8 +563,8 @@ packages:
       to-regex-range: 5.0.1
     dev: true
 
-  /forge-exec@0.0.2:
-    resolution: {integrity: sha512-vAzMyN73DKHbfRdZnX9F5smVMjqrt+TxQWDNetDzRoTdvwj6CIIhDGgYBQ83+ztf6tR1rdIr+8UKIdlecLA4xQ==}
+  /forge-exec@0.0.3:
+    resolution: {integrity: sha512-zaHWoVKLHr9H/+11jlZfTqH1CJu4La7mdjb4cUOHKpZffKEw4vBoSwdgTW61YCXyIvcGXlaKvOTBkprOkpvgeA==}
     requiresBuild: true
     dev: true
 
