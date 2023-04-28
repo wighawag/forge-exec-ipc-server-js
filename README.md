@@ -9,5 +9,8 @@ cd examples/demo-js
 forge install --no-git foundry-rs/forge-std#
 
 # we need this as we do not want to go through node to execute it
-PATH=node_modules/forge-exec-ipc-client/bin:$PATH forge test
+PATH=node_modules/.bin:$PATH forge test
+
+# but you can use npm script
+pnpm test
 ```

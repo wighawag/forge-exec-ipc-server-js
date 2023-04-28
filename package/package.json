@@ -21,7 +21,7 @@
 		}
 	},
 	"bin": {
-		"forge-exec": "dist/esm/executor.js"
+		"forge-exec-js-client": "dist/esm/executor.js"
 	},
 	"devDependencies": {
 		"@types/node": "^18.15.7",
