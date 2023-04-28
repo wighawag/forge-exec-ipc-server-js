@@ -3,11 +3,13 @@
   "private": true,
   "type": "module",
   "devDependencies": {
-    "forge-exec": "^0.0.3",
+    "forge-exec": "^0.1.4",
+    "forge-exec-ipc-client": "^0.0.2",
     "forge-exec-ipc-server": "workspace:*",
     "tsx": "^3.12.6"
   },
   "scripts": {
+    "prepare": "forge-exec-prepare",
     "test": "forge test"
   }
 }
