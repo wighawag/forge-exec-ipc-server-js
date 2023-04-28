@@ -4,6 +4,9 @@ importers:
 
   examples/demo-js:
     devDependencies:
+      forge-exec:
+        specifier: ^0.0.1
+        version: 0.0.1
       forge-exec-ipc-server:
         specifier: workspace:*
         version: link:../../package
@@ -558,6 +561,10 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       to-regex-range: 5.0.1
+    dev: true
+
+  /forge-exec@0.0.1:
+    resolution: {integrity: sha512-R88QUbRRwd96R4/WHV3ZLA7VVSRG8sF2mT0YMWd7ybDI7nN/kL7WHBienpDRlVEZdtKNG6iydapgDliIX4zK2g==}
     dev: true
 
   /fs.realpath@1.0.0:
