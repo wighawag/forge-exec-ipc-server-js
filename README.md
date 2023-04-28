@@ -11,7 +11,7 @@ forge install --no-git foundry-rs/forge-std
 # you can now execute your test
 pnpm test
 
-# Note that if you want to use forge directly, you'll need to make sure theforge-exec-ipc-client is in your path
+# Note that if you want to use forge directly, you'll need to make sure the `forge-exec-ipc-client` is in your path
 # you can do the following:
 
 PATH=node_modules/.bin:$PATH forge test
