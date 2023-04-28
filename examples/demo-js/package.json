@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "devDependencies": {
-    "forge-exec": "^0.0.1",
+    "forge-exec": "^0.0.2",
     "forge-exec-ipc-server": "workspace:*",
     "tsx": "^3.12.6"
   },
