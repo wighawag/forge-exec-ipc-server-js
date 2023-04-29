@@ -1,6 +1,6 @@
 {
 	"name": "forge-exec-ipc-server",
-	"version": "0.0.1",
+	"version": "0.1.10",
 	"description": "A package that let a script communicate back with forge-exec",
 	"keywords": [
 		"forge",

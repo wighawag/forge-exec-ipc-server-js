@@ -14,7 +14,7 @@ contract ExecTest is Test {
         string[] memory args = new string[](2);
         args[0] = "tsx";
         args[1] = "./example.ts";
-        bytes memory test = Exec.execute("npx", args, false);
+        bytes memory test = Exec.execute("npx", args);
         (address addr1, address addr2, address addr3) = abi.decode(
             test,
             (address, address, address)

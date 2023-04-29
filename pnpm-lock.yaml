@@ -5,8 +5,8 @@ importers:
   examples/demo-js:
     devDependencies:
       forge-exec:
-        specifier: ^0.1.9
-        version: 0.1.9(forge-exec-ipc-client@0.1.0)
+        specifier: ^0.1.10
+        version: 0.1.10(forge-exec-ipc-client@0.1.0)
       forge-exec-ipc-client:
         specifier: ^0.1.0
         version: 0.1.0
@@ -573,8 +573,8 @@ packages:
     resolution: {integrity: sha512-hK4zyafhxteIB/nvx1wFN37MqjfCOYI8CfChTPR3ZOHLDvfjjO31gZMgPzXh3E4Zztkt58qF4LLgvphpHF51xg==}
     dev: true
 
-  /forge-exec@0.1.9(forge-exec-ipc-client@0.1.0):
-    resolution: {integrity: sha512-17nkJr7mlxb3gZd+6/nc0lkoscJUt/nvj0I5+lqfCiHREsVWOY6L7a5cO3fd6CHG6vGjoxNjFELBc9v+UuBVPw==}
+  /forge-exec@0.1.10(forge-exec-ipc-client@0.1.0):
+    resolution: {integrity: sha512-AlXG7AfnFDS9hVHwGFnHo1l1DnuEFwaA37bXcj9BkSEBva9vNkEGUzig1v3fIgHYPfPxILtmTsSq1OD1ENS/gw==}
     hasBin: true
     peerDependencies:
       forge-exec-ipc-client: 0.1.0

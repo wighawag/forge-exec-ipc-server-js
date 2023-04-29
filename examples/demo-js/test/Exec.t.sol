@@ -13,7 +13,7 @@ contract ExecTest is Test {
     function setUp() public {
         string[] memory args = new string[](1);
         args[0] = "./example.js";
-        bytes memory test = Exec.execute("node", args, false);
+        bytes memory test = Exec.execute("node", args);
         (address addr1, address addr2, address addr3) = abi.decode(
             test,
             (address, address, address)

@@ -3,9 +3,10 @@ const ipc = ipcModule.default?.default || ipcModule.default || ipcModule; // fix
 import fs from 'node:fs';
 import {decodeAbiParameters, encodeAbiParameters} from 'viem';
 import type {AbiParameter, AbiParametersToPrimitiveTypes, Narrow} from 'abitype';
-import {CallRequest, CallResponse, CreateRequest, Forge, SendRequest} from './types';
+import {CallRequest, CallResponse, Create2Request, CreateRequest, Forge, SendRequest, StaticCallRequest} from './types';
 
 const AddressZero = '0x0000000000000000000000000000000000000000';
+const Bytes32Zero = '0x0000000000000000000000000000000000000000000000000000000000000000';
 
 const logPath = './.ipc.log'; // `.ipc_${process.pid}.log`
 const access = fs.createWriteStream(logPath, {flags: 'a'});
@@ -191,15 +192,42 @@ export class ReverseIPCProvider<T extends ExecuteReturnResult> {
 				}
 				const request = {
 					data: encodeAbiParameters(
-						[{type: 'address'}, {type: 'bytes'}, {type: 'address'}, {type: 'uint256'}],
+						[{type: 'bool'}, {type: 'address'}, {type: 'bytes'}, {type: 'address'}, {type: 'uint256'}],
 						[
+              tx.broadcast || false,
 							tx.from || AddressZero,
 							tx.data || '0x',
 							tx.to || '0x0000000000000000000000000000000000000000',
 							BigInt(tx.value || 0),
 						]
 					),
-					type: 1,
+					type: 0xf1,
+				};
+				return self.wrapHandler({
+					request,
+					resolution: async (v) => {
+						const result = decodeAbiParameters([{type: 'bool'}, {type: 'bytes'}], v as `0x${string}`);
+						return {
+							success: result[0],
+							data: result[1],
+						};
+					},
+				});
+			},
+      static_call(tx: StaticCallRequest): Promise<CallResponse> {
+				if (!tx.from) {
+					throw new Error(`no from specified ${JSON.stringify(tx)}`);
+				}
+				const request = {
+					data: encodeAbiParameters(
+						[{type: 'address'}, {type: 'bytes'}, {type: 'address'}],
+						[
+							tx.from || AddressZero,
+							tx.data || '0x',
+							tx.to || '0x0000000000000000000000000000000000000000'
+						]
+					),
+					type: 0xfa,
 				};
 				return self.wrapHandler({
 					request,
@@ -215,10 +243,29 @@ export class ReverseIPCProvider<T extends ExecuteReturnResult> {
 			create(create: CreateRequest): Promise<`0x${string}`> {
 				const request = {
 					data: encodeAbiParameters(
-						[{type: 'address'}, {type: 'bytes'}, {type: 'uint256'}],
-						[create.from || AddressZero, create.data || '0x', BigInt(create.value || 0)]
+						[{type: 'bool'}, {type: 'address'}, {type: 'bytes'}, {type: 'uint256'}],
+						[create.broadcast || false, create.from || AddressZero, create.data || '0x', BigInt(create.value || 0)]
 					),
 					type: 0xf0,
+				};
+				return self.wrapHandler({
+					request,
+					resolution: async (v) => {
+						// TODO handle normal tx
+						if (v === AddressZero) {
+							throw new Error(`Could not create contract`);
+						}
+						return v as `0x${string}`;
+					},
+				});
+			},
+      create2(create: Create2Request): Promise<`0x${string}`> {
+				const request = {
+					data: encodeAbiParameters(
+						[{type: 'bool'}, {type: 'address'}, {type: 'bytes'}, {type: 'uint256'}, {type: 'bytes32'}],
+						[create.broadcast || false, create.from || AddressZero, create.data || '0x', BigInt(create.value || 0), create.salt || Bytes32Zero]
+					),
+					type: 0xf5,
 				};
 				return self.wrapHandler({
 					request,
@@ -234,10 +281,10 @@ export class ReverseIPCProvider<T extends ExecuteReturnResult> {
 			send(send: SendRequest): Promise<boolean> {
 				const request = {
 					data: encodeAbiParameters(
-						[{type: 'address'}, {type: 'bytes'}, {type: 'uint256'}],
-						[send.from || AddressZero, send.to, BigInt(send.value || 0)]
+						[{type: 'bool'}, {type: 'address'}, {type: 'bytes'}, {type: 'uint256'}],
+						[send.broadcast || false, send.from || AddressZero, send.to, BigInt(send.value || 0)]
 					),
-					type: 0xf0,
+					type: 0xf100,
 				};
 				return self.wrapHandler({
 					request,
@@ -249,7 +296,7 @@ export class ReverseIPCProvider<T extends ExecuteReturnResult> {
 			balance(account: `0x${string}`): Promise<BigInt> {
 				const request = {
 					data: encodeAbiParameters([{type: 'address'}], [account]),
-					type: 31,
+					type: 0x31,
 				};
 				return self.wrapHandler({
 					request,
