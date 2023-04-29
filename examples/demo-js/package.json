@@ -6,10 +6,13 @@
     "forge-exec": "^0.1.9",
     "forge-exec-ipc-client": "^0.1.0",
     "forge-exec-ipc-server": "workspace:*",
-    "tsx": "^3.12.6"
+    "forge-ts": "^0.0.1",
+    "tsx": "^3.12.6",
+    "viem": "^0.1.22"
   },
   "scripts": {
     "prepare": "forge-exec-prepare",
-    "test": "forge test"
+    "test": "forge test",
+    "compile": "forge compile && forge-ts contracts js,ts"
   }
 }

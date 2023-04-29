@@ -6,3 +6,4 @@ broadcast/*/31337/
 .rust-executor*
 forge-exec-ipc-client
 lib/
+/contracts

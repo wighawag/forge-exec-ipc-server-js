@@ -16,6 +16,9 @@ pnpm build --filter forge-exec-ipc-server
 
 # install forge-std (we use --no-git as we do not use submodule)
 forge install --no-git foundry-rs/forge-std
+
+# compile contract with generated ts
+pnpm compile
 ```
 
 ## Run

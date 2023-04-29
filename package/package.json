@@ -37,6 +37,8 @@
 	"scripts": {
 		"build:esm": "tsup-node --entry src/index.ts --entry src/executor.ts --dts --out-dir dist/esm --format esm",
 		"build:cjs": "tsup-node --entry src/index.ts --entry src/executor.ts --dts --out-dir dist/cjs --format cjs",
+    "dev:cjs": "pnpm build:cjs --watch",
+    "dev:esm": "pnpm build:esm --watch",
 		"build": "pnpm run build:esm && pnpm run build:cjs"
 	}
 }
