@@ -5,11 +5,11 @@ importers:
   examples/demo-js:
     devDependencies:
       forge-exec:
-        specifier: ^0.1.8
-        version: 0.1.8(forge-exec-ipc-client@0.0.2)
+        specifier: ^0.1.9
+        version: 0.1.9(forge-exec-ipc-client@0.1.0)
       forge-exec-ipc-client:
-        specifier: ^0.0.2
-        version: 0.0.2
+        specifier: ^0.1.0
+        version: 0.1.0
       forge-exec-ipc-server:
         specifier: workspace:*
         version: link:../../package
@@ -566,17 +566,17 @@ packages:
       to-regex-range: 5.0.1
     dev: true
 
-  /forge-exec-ipc-client@0.0.2:
-    resolution: {integrity: sha512-M/2JQD+rKER/8bbpybL+CXbCd6Zx6tZr6lZLe3ammxfZAGRRTEBCgUe1hiaZkSQNhj6FjpQEkhYWqN0cH+piUg==}
+  /forge-exec-ipc-client@0.1.0:
+    resolution: {integrity: sha512-hK4zyafhxteIB/nvx1wFN37MqjfCOYI8CfChTPR3ZOHLDvfjjO31gZMgPzXh3E4Zztkt58qF4LLgvphpHF51xg==}
     dev: true
 
-  /forge-exec@0.1.8(forge-exec-ipc-client@0.0.2):
-    resolution: {integrity: sha512-U+oN+6FKxQWNRT7PAyuRzJiuES+Dn/ecYXoMjfHhr9C6o7Wnu1sDOK/TcPhnUonnZtNhXEPJwVJDYO+cZ8pUew==}
+  /forge-exec@0.1.9(forge-exec-ipc-client@0.1.0):
+    resolution: {integrity: sha512-17nkJr7mlxb3gZd+6/nc0lkoscJUt/nvj0I5+lqfCiHREsVWOY6L7a5cO3fd6CHG6vGjoxNjFELBc9v+UuBVPw==}
     hasBin: true
     peerDependencies:
-      forge-exec-ipc-client: 0.0.2
+      forge-exec-ipc-client: 0.1.0
     dependencies:
-      forge-exec-ipc-client: 0.0.2
+      forge-exec-ipc-client: 0.1.0
     dev: true
 
   /fs.realpath@1.0.0:
