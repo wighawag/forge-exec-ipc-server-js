@@ -1,4 +1,5 @@
 import {ExecuteReturnResult, ReverseIPCProvider} from './ReverseIPCProvider';
+import { log_msg } from './log';
 import {Forge} from './types';
 
 const args = process.argv.slice(2);
@@ -12,8 +13,12 @@ if (!socketID) {
 	throw new Error(`no sockerID specified`);
 }
 
-console.log(`socketID: ${socketID}`);
-console.log(`args: "${args.join('" "')}"`);
+log_msg(`!!! pid: ${process.pid}`);
+
+log_msg(`socketID: ${socketID}`);
+log_msg(`args: "${args.join('" "')}"`);
+
+
 
 export function execute<T extends ExecuteReturnResult>(func: (forge: Forge) => T | Promise<T>) {
 	const provider = new ReverseIPCProvider(func, socketID);

@@ -1,43 +1,21 @@
 import * as ipcModule from '@achrinza/node-ipc';
 const ipc = ipcModule.default?.default || ipcModule.default || ipcModule; // fix issue with cjs
-import fs from 'node:fs';
 import {decodeAbiParameters, encodeAbiParameters} from 'viem';
 import type {AbiParameter, AbiParametersToPrimitiveTypes, Narrow} from 'abitype';
-import {CallRequest, CallResponse, Create2Request, CreateRequest, Forge, SendRequest, StaticCallRequest} from './types';
+import {Bytes32, BytesData, CallRequest, CallResponse, Create2Request, CreateRequest, Forge, SendRequest, StaticCallRequest} from './types';
+import { FORGE_EXEC_LOGS, LOG_INFO, LOG_IPC_SERVER, log_error, log_msg } from './log';
 
 const AddressZero = '0x0000000000000000000000000000000000000000';
 const Bytes32Zero = '0x0000000000000000000000000000000000000000000000000000000000000000';
-
-const logPath = './.ipc.log'; // `.ipc_${process.pid}.log`
-const access = fs.createWriteStream(logPath, {flags: 'a'});
-if (process.env.FORGE_EXEC_PROCESS_LOGS === '') {
-	process.env.FORGE_EXEC_PROCESS_LOGS = undefined;
-}
-if (!process.env.FORGE_EXEC_PROCESS_LOGS) {
-	process.stdout.write = process.stderr.write = access.write.bind(access);
-}
-// TODO use LOG for logging debug / error message about ReverseIPCProvider
-// then we can have a special console.log / error function to write log into forge
-
-// function LOG(type: 'error' | 'log', message: string, ...extraMessage: string[]) {
-// 	const msg = message + extraMessage && extraMessage.length > 0 ? ',' + extraMessage.join(',') : '';
-// 	if (process.env.FORGE_EXEC_PROCESS_LOGS) {
-// 		console.log(msg);
-// 	} else {
-// 		access.write(msg);
-// 	}
-// }
-console.log(`!!! pid: ${process.pid}`);
-// console.time('PROCESS');
 
 function exitProcess(errorCode?: number, alwaysInstant?: boolean) {
 	try {
 		ipc.server.stop();
 	} catch (err) {
-		console.error(err);
+		log_error(err);
 	}
 
-	if (alwaysInstant) {
+	if (alwaysInstant || !FORGE_EXEC_LOGS) {
 		process.exit(errorCode);
 	} else {
 		// give time for log to show up in log file
@@ -47,11 +25,11 @@ function exitProcess(errorCode?: number, alwaysInstant?: boolean) {
 }
 
 process.on('uncaughtException', function (err) {
-	console.error(err);
+	log_error(err);
 	try {
 		ipc.server.stop();
 	} catch (err) {
-		console.error(err);
+		log_error(err);
 	}
 	setTimeout(() => process.exit(1), 100);
 });
@@ -86,7 +64,7 @@ export class ReverseIPCProvider<T extends ExecuteReturnResult> {
 	}
 
 	private onTimeout() {
-		console.error(`!!! TIMEOUT`);
+		log_error(`!!! TIMEOUT`);
 		exitProcess(1, true);
 	}
 
@@ -106,10 +84,15 @@ export class ReverseIPCProvider<T extends ExecuteReturnResult> {
 		// we start the timeout on start
 		this.resetTimeout();
 
-		setInterval(() => console.log(`!!! pid: ${process.pid}`), 20000);
+    if (LOG_INFO) {
+      setInterval(() => log_msg(`!!! pid: ${process.pid}`), 20000);
+    }
 
-		ipc.config.logger = (...args) => console.log(`!!!IPC`, ...args);
-		// ipc.config.logger = () => {};
+    if (LOG_IPC_SERVER) {
+      ipc.config.logger = (...args) => log_msg(`!!!IPC`, ...args);
+    } else {
+      ipc.config.logger = () => {};
+    }
 		ipc.config.retry = 1500;
 		ipc.config.rawBuffer = true;
 
@@ -117,31 +100,29 @@ export class ReverseIPCProvider<T extends ExecuteReturnResult> {
 			ipc.serve(this.socketID, this.onServing.bind(this));
 			ipc.server.start();
 		} catch (err) {
-			console.log(`!!!IPC ERROR`, err);
+			log_msg(`!!!IPC ERROR`, err);
 			exitProcess(1, true);
 		}
 
 		ipc.server.on('error', (err) => {
-			console.log(`!!!IPC ERROR`, err);
+			log_msg(`!!!IPC ERROR`, err);
 			exitProcess(1, true);
 		});
 	}
 
 	private onServing() {
-		console.log(`!!! serving...`);
+		log_msg(`!!! serving...`);
 		ipc.server.on('data', this.onMessage.bind(this));
 	}
 
 	private abort(err: any) {
-		console.error(`!!! AN ERROR HAPPEN IN THE SCRIPT`);
-		console.error(`!!! ${err}`);
-		console.timeEnd('PROCESS');
+		log_error(`!!! AN ERROR HAPPEN IN THE SCRIPT`);
+		log_error(`!!! ${err}`);
 		exitProcess(1);
 	}
 
 	private returnResult(v: T) {
-		console.error(`!!! THE SCRIPT ENDED WITH: ${JSON.stringify(v)}`);
-		// console.timeEnd('PROCESS');
+		log_error(`!!! THE SCRIPT ENDED WITH: ${JSON.stringify(v)}`);
 
 		if (this.socket) {
 			let data: `0x${string}` = '0x';
@@ -167,8 +148,7 @@ export class ReverseIPCProvider<T extends ExecuteReturnResult> {
 			ipc.server.emit(this.socket, request + `\n`);
 			exitProcess();
 		} else {
-			// TODO error
-			console.error(`!!! NO SOCKET`);
+			log_error(`!!! NO SOCKET`);
 			exitProcess(1);
 		}
 	}
@@ -240,7 +220,7 @@ export class ReverseIPCProvider<T extends ExecuteReturnResult> {
 					},
 				});
 			},
-			create(create: CreateRequest): Promise<`0x${string}`> {
+			create(create: CreateRequest): Promise<BytesData> {
 				const request = {
 					data: encodeAbiParameters(
 						[{type: 'bool'}, {type: 'address'}, {type: 'bytes'}, {type: 'uint256'}],
@@ -255,11 +235,11 @@ export class ReverseIPCProvider<T extends ExecuteReturnResult> {
 						if (v === AddressZero) {
 							throw new Error(`Could not create contract`);
 						}
-						return v as `0x${string}`;
+						return v as BytesData;
 					},
 				});
 			},
-      create2(create: Create2Request): Promise<`0x${string}`> {
+      create2(create: Create2Request): Promise<BytesData> {
 				const request = {
 					data: encodeAbiParameters(
 						[{type: 'bool'}, {type: 'address'}, {type: 'bytes'}, {type: 'uint256'}, {type: 'bytes32'}],
@@ -274,10 +254,80 @@ export class ReverseIPCProvider<T extends ExecuteReturnResult> {
 						if (v === AddressZero) {
 							throw new Error(`Could not create contract`);
 						}
-						return v as `0x${string}`;
+						return v as BytesData;
 					},
 				});
 			},
+      code(account: `0x${string}`): Promise<BytesData> {
+				const request = {
+					data: encodeAbiParameters([{type: 'address'}], [account]),
+					type: 0x3c,
+				};
+				return self.wrapHandler({
+					request,
+					resolution: async (v) => v as BytesData,
+				});
+			},
+      code_hash(account: `0x${string}`): Promise<Bytes32> {
+        const request = {
+					data: encodeAbiParameters([{type: 'address'}], [account]),
+					type: 0x3f,
+				};
+				return self.wrapHandler({
+					request,
+					resolution: async (v) => v as Bytes32,
+				});
+      },
+      code_size(account: `0x${string}`): Promise<BigInt> {
+        const request = {
+					data: encodeAbiParameters([{type: 'address'}], [account]),
+					type: 0x3b,
+				};
+				return self.wrapHandler({
+					request,
+					resolution: async (v) => BigInt(v),
+				});
+      },
+      block_hash(num: number): Promise<Bytes32> {
+        const request = {
+					data: encodeAbiParameters([{type: 'uint256'}], [BigInt(num)]),
+					type: 0x40,
+				};
+				return self.wrapHandler({
+					request,
+					resolution: async (v) => v as Bytes32,
+				});
+      },
+      block_timestamp(): Promise<number> {
+        const request = {
+					data: "0x" as `0x${string}`,
+					type: 0x42,
+				};
+				return self.wrapHandler({
+					request,
+					resolution: async (v) => parseInt(v),
+				});
+      },
+      block_number(): Promise<number> {
+        const request = {
+					data: "0x" as `0x${string}`,
+					type: 0x43,
+				};
+				return self.wrapHandler({
+					request,
+					resolution: async (v) => parseInt(v),
+				});
+      },
+      chainid(): Promise<BigInt> {
+        const request = {
+					data: "0x" as `0x${string}`,
+					type: 0x46,
+				};
+				return self.wrapHandler({
+					request,
+					resolution: async (v) => BigInt(v),
+				});
+      },
 			send(send: SendRequest): Promise<boolean> {
 				const request = {
 					data: encodeAbiParameters(
@@ -305,7 +355,7 @@ export class ReverseIPCProvider<T extends ExecuteReturnResult> {
 			},
 		};
 
-		console.error('!!! EXECUTING SCRIPT');
+		log_error('!!! EXECUTING SCRIPT');
 		try {
 			const promiseOrResult = this.script(forge);
 			if (promiseOrResult instanceof Promise) {
@@ -326,10 +376,10 @@ export class ReverseIPCProvider<T extends ExecuteReturnResult> {
 
 	private async resolvePendingRequest(data: any) {
 		if (!this.resolveQueue || this.resolveQueue.length === 0) {
-			console.error(`RESOLUTION QUEUE IS EMPTY`);
+			log_error(`RESOLUTION QUEUE IS EMPTY`);
 			exitProcess(1, true);
 		} else {
-			console.log('!!! RESOLVING PREVIOUS REQUEST');
+			log_msg('!!! RESOLVING PREVIOUS REQUEST');
 			const next = this.resolveQueue.shift();
 			const transformedData = await next.handler.resolution(data);
 			next.resolve(transformedData);
@@ -358,23 +408,23 @@ export class ReverseIPCProvider<T extends ExecuteReturnResult> {
 		this.socket = socket;
 		const data = response.toString('utf8').slice(0, -1);
 
-		console.log(`!!! MESSAGE from client`);
+		log_msg(`!!! MESSAGE from client`);
 
 		if (data.startsWith('terminate:')) {
 			// TODO good terminate ?
-			console.error(`!!! TERMINATING: ${data.slice(10)}`);
+			log_error(`!!! TERMINATING: ${data.slice(10)}`);
 			exitProcess(1);
 		} else if (data.startsWith('response:')) {
 			if (!this.resolveQueue) {
 				this.resolveQueue = [];
 				this.executeScript();
-				// console.error(`!!! ERRRO no request to resolve`);
+				// log_error(`!!! ERRRO no request to resolve`);
 				// must be the first message, we can execute
 			} else {
 				this.resolvePendingRequest(data.slice(9));
 			}
 		} else {
-			console.error(`!!! INVALID RESPONSE, need to start with "terminate:", or "response:": ${data}`);
+			log_error(`!!! INVALID RESPONSE, need to start with "terminate:", or "response:": ${data}`);
 			exitProcess(1);
 		}
 	}

@@ -3,6 +3,7 @@ import type {AbiParameterToPrimitiveType, ResolvedConfig} from 'abitype';
 export type String0x = `0x${string}`;
 export type Address = String0x;
 export type BytesData = String0x;
+export type Bytes32 = String0x;
 
 export type CallRequest = {
   broadcast?: AbiParameterToPrimitiveType<{type: 'bool'}>;
@@ -43,9 +44,16 @@ export type SendRequest = {
 
 export interface Forge {
 	call(request: CallRequest): Promise<CallResponse>;
-	send(request: SendRequest): Promise<boolean>;
 	static_call(request: StaticCallRequest): Promise<CallResponse>;
 	create(request: CreateRequest): Promise<Address>;
   create2(request: Create2Request): Promise<Address>;
 	balance(account: AbiParameterToPrimitiveType<{type: 'address'}>): Promise<BigInt>;
+  code(account: `0x${string}`): Promise<BytesData>;
+  code_hash(account: `0x${string}`): Promise<Bytes32>;
+  code_size(account: `0x${string}`): Promise<BigInt>;
+  block_hash(num: number): Promise<Bytes32>;
+  block_timestamp(): Promise<number>;
+  block_number(): Promise<number>;
+  chainid(): Promise<BigInt>;
+  send(request: SendRequest): Promise<boolean>;
 }
