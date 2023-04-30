@@ -1,6 +1,6 @@
 {
 	"name": "forge-exec-ipc-server",
-	"version": "0.1.11",
+	"version": "0.1.12",
 	"description": "A package that let a script communicate back with forge-exec",
 	"keywords": [
 		"forge",
@@ -34,6 +34,9 @@
 		"named-logs": "^0.2.2",
 		"viem": "^0.1.22"
 	},
+  "peerDependencies": {
+    "forge-exec": "^0.1.12"
+  },
 	"scripts": {
 		"build:esm": "tsup-node --entry src/index.ts --entry src/executor.ts --dts --out-dir dist/esm --format esm",
 		"build:cjs": "tsup-node --entry src/index.ts --entry src/executor.ts --dts --out-dir dist/cjs --format cjs",
